@@ -3,14 +3,22 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
+    "dev:remote": "wrangler dev --remote",
     "deploy": "wrangler deploy --minify",
-    "cf-typegen": "wrangler types --env-interface CloudflareBindings"
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings",
+    "migrate": "npx drizzle-kit migrate --config ./drizzle.config.ts",
+    "seed": "node ./scripts/seed-dev.js",
+    "studio": "npx drizzle-kit studio --config ./drizzle.config.ts"
   },
   "dependencies": {
+    "dotenv": "^17.3.1",
     "drizzle-orm": "^0.45.1",
     "hono": "^4.12.7"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260312.1",
+    "@types/node": "^25.4.0",
+    "better-sqlite3": "^12.6.2",
     "drizzle-kit": "^0.31.9",
     "wrangler": "^4.4.0"
   }
