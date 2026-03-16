@@ -1,19 +1,80 @@
 import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { relations, sql } from "drizzle-orm";
 
-// 1. Хэрэглэгчдийн хүснэгт
-export const users = sqliteTable("users", {
+// --- TABLES ---
+
+export const users = sqliteTable("User", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  email: text("email").unique().notNull(),
+  password: text("password").notNull(),
+  age: integer("age"),
+  phoneNumber: text("phoneNumber").notNull(),
+});
+
+export const foodCategory = sqliteTable("FoodCategory", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
-  email: text("email").unique(),
+  createdAt: text("createdAt").default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text("updatedAt").default(sql`CURRENT_TIMESTAMP`),
 });
 
-// 2. Постуудын хүснэгт
-export const posts = sqliteTable("posts", {
+export const food = sqliteTable("Food", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  title: text("title").notNull(),
-  content: text("content").notNull(),
-  // Энэ багана нь 'users' хүснэгтийн 'id'-тай холбогдож байна
-  userId: integer("userId")
+  name: text("name").notNull(),
+  price: text("price").notNull(),
+  foodCategoryId: integer("foodCategoryId")
     .notNull()
-    .references(() => users.id),
+    .references(() => foodCategory.id),
+  createdAt: text("createdAt").default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text("updatedAt").default(sql`CURRENT_TIMESTAMP`),
 });
+
+export const foodOrder = sqliteTable("FoodOrder", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  totalPrice: text("totalPrice").notNull(),
+  status: text("status").notNull().default("PENDING"),
+  createdAt: text("createdAt").default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text("updatedAt").default(sql`CURRENT_TIMESTAMP`),
+});
+
+export const foodOrderItem = sqliteTable("FoodOrderItem", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  quantity: integer("quantity").notNull(),
+  foodId: integer("foodId")
+    .notNull()
+    .references(() => food.id),
+  foodOrderId: integer("foodOrderId")
+    .notNull()
+    .references(() => foodOrder.id),
+  createdAt: text("createdAt").default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text("updatedAt").default(sql`CURRENT_TIMESTAMP`),
+});
+
+// --- RELATIONS ---
+
+export const foodRelations = relations(food, ({ one, many }) => ({
+  category: one(foodCategory, {
+    fields: [food.foodCategoryId],
+    references: [foodCategory.id],
+  }),
+  orderItems: many(foodOrderItem),
+}));
+
+export const foodCategoryRelations = relations(foodCategory, ({ many }) => ({
+  foods: many(food),
+}));
+
+export const foodOrderRelations = relations(foodOrder, ({ many }) => ({
+  foodOrderItems: many(foodOrderItem),
+}));
+
+export const foodOrderItemRelations = relations(foodOrderItem, ({ one }) => ({
+  food: one(food, {
+    fields: [foodOrderItem.foodId],
+    references: [food.id],
+  }),
+  order: one(foodOrder, {
+    fields: [foodOrderItem.foodOrderId],
+    references: [foodOrder.id],
+  }),
+}));

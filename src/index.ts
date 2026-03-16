@@ -1,41 +1,58 @@
 import { Hono } from "hono";
 import { drizzle } from "drizzle-orm/d1";
-import { eq } from "drizzle-orm";
-import { users } from "./db/schema";
+import * as schema from "./db/schema";
 
-// type
 type Bindings = {
   my_db: D1Database;
 };
 
 const app = new Hono<{ Bindings: Bindings }>();
 
-app.get("/", (c) => {
-  return c.text("Hello Hono!");
+// 2. Categories read
+app.get("/categories", async (c) => {
+  const db = drizzle(c.env.my_db, { schema });
+  const result = await db.query.foodCategory.findMany();
+
+  return c.json(result, 201);
 });
 
-// Read
-app.get("/users", async (c) => {
-  const db = drizzle(c.env.my_db);
-  const all = await db.select().from(users);
-  return c.json(all);
-});
-
-//Create
-app.post("/users", async (c) => {
-  const db = drizzle(c.env.my_db);
-
+// 2. Categories creat
+app.post("/categories", async (c) => {
+  const db = drizzle(c.env.my_db, { schema });
   const body = await c.req.json();
-
   const result = await db
-    .insert(users)
+    .insert(schema.foodCategory)
     .values({
       name: body.name,
-      email: body.email,
     })
     .returning();
+  return c.json(result, 201);
+});
 
-  return c.json(result, 201); //
+// 1. Foods read
+app.get("/foods", async (c) => {
+  const db = drizzle(c.env.my_db, { schema });
+  const result = await db.query.food.findMany({
+    with: {
+      category: true,
+    },
+  });
+  return c.json(result);
+});
+
+// Foods creat
+app.post("/foods", async (c) => {
+  const db = drizzle(c.env.my_db, { schema });
+  const body = await c.req.json();
+  const result = await db
+    .insert(schema.food)
+    .values({
+      name: body.name,
+      price: body.price,
+      foodCategoryId: body.categoryId,
+    })
+    .returning();
+  return c.json(result, 201);
 });
 
 export default app;
