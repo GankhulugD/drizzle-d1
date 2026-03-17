@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/package",
   "name": "my-app",
   "type": "module",
   "scripts": {
@@ -8,7 +9,8 @@
     "cf-typegen": "wrangler types --env-interface CloudflareBindings",
     "migrate": "npx drizzle-kit migrate --config ./drizzle.config.ts",
     "seed": "node ./scripts/seed-dev.js",
-    "studio": "npx drizzle-kit studio --config ./drizzle.config.ts"
+    "studio": "npx drizzle-kit studio --config ./drizzle.config.ts",
+    "push": "npx drizzle-kit push"
   },
   "dependencies": {
     "dotenv": "^17.3.1",
