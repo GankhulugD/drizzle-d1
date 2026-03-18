@@ -6,8 +6,6 @@
     "strict": true,
     "skipLibCheck": true,
     "lib": ["ESNext"],
-    "types": [
-      "@cloudflare/workers-types" // Үүнийг заавал нэмээрэй
-    ]
+    "types": ["@cloudflare/workers-types"]
   }
 }

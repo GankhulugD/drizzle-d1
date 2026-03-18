@@ -4,28 +4,30 @@ import { food } from "../../db/schema";
 
 export const createFood = async (c: AppContext) => {
   const d1 = c.env.my_db;
-  const db = drizzleProvider(d1);
+
+  // 1. db-г await хийж бодит объект болгож авна
+  const db = await drizzleProvider(d1);
+
   const { name, price, foodCategoryId } = await c.req.json();
-  console.log("===============1===============");
 
   console.log("body: ", name, price, foodCategoryId);
-  console.log("===============2===============");
+
   try {
-    console.log("===============3===============");
-    (await db)
+    const result = await db
       .insert(food)
       .values({
         name: name,
-        price: price,
-        foodCategoryId: foodCategoryId,
+        price: String(price),
+        foodCategoryId: Number(foodCategoryId),
       })
       .returning();
 
-    console.log("===============4===============");
+    console.log("Нэмэгдсэн өгөгдөл: ", result);
 
-    return c.json({ success: "Success" });
+    return c.json({ success: "Success", data: result });
   } catch (err) {
-    console.log("===============5===============");
+    console.log("Алдаа гарлаа:");
     console.log(err);
+    return c.json({ error: "Failed to create food" }, 500);
   }
 };
