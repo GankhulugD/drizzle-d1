@@ -1,7 +1,8 @@
 import { createFood } from "../../controller/foods/post-food";
 import { getFoods } from "../../controller/foods/get-food";
-import { patchFood } from "../../controller/foods/patch-food"; // Нэмсэн
-import { deleteFood } from "../../controller/foods/delete-food"; // Нэмсэн
+import { patchFood } from "../../controller/foods/patch-food";
+import { deleteFood } from "../../controller/foods/delete-food";
+
 import { App } from "../../types";
 
 export const foodRouter = (app: App) => {

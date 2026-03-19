@@ -1,6 +1,5 @@
 import { AppContext } from "../../types";
 import { drizzleProvider } from "../../provider";
-import * as schema from "../../db/schema";
 
 export const getFoods = async (c: AppContext) => {
   const d1 = c.env.my_db;
@@ -14,6 +13,6 @@ export const getFoods = async (c: AppContext) => {
       foods: foods,
     });
   } catch (error) {
-    return c.json({ error: "Internal Server Error" }, 500);
+    return c.json({ message: `Internal Server Error`, error: error }, 500);
   }
 };

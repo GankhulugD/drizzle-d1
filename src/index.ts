@@ -1,58 +1,35 @@
 import { Hono } from "hono";
-import { drizzle } from "drizzle-orm/d1";
-import * as schema from "./db/schema";
 import { foodRouter } from "./router/foods/food.route";
-import { Bindings } from "./types";
+import { categoryRouter } from "./router/categories/category.route"; // Category роутерийн зам
+import { Bindings, App } from "./types";
 
+// 1. Hono аппликейшнээ Bindings-тэй нь үүсгэх
 const app = new Hono<{ Bindings: Bindings }>();
 
-foodRouter(app);
-
-// 2. Categories read
-app.get("/categories", async (c) => {
-  const db = drizzle(c.env.my_db, { schema });
-  const result = await db.query.foodCategory.findMany();
-
-  return c.json(result, 201);
+// 2. Middleware (Дурын нэмэлт тохиргоо, жишээ нь Logger)
+app.use("*", async (c, next) => {
+  console.log(`[${c.req.method}] ${c.req.url}`);
+  await next();
 });
 
-// 2. Categories creat
-app.post("/categories", async (c) => {
-  const db = drizzle(c.env.my_db, { schema });
-  const body = await c.req.json();
-  const result = await db
-    .insert(schema.foodCategory)
-    .values({
-      name: body.name,
-    })
-    .returning();
-  return c.json(result, 201);
-});
+// 3. Роутерүүдээ бүртгэх
+// 'app' объектыг App төрөл рүү хөрвүүлж дамжуулна (types/index.ts-д тодорхойлсон бол)
+foodRouter(app as unknown as App);
+categoryRouter(app as unknown as App);
 
-// 1. Foods read
-app.get("/foods", async (c) => {
-  const db = drizzle(c.env.my_db, { schema });
-  const result = await db.query.food.findMany({
-    with: {
-      category: true,
-    },
+// 4. Үндсэн (Root) зам дээр мэндчилгээ эсвэл статус харуулах
+app.get("/", (c) => {
+  return c.json({
+    message: "Food API is running!",
+    status: "online",
+    timestamp: new Date().toISOString(),
   });
-  return c.json(result);
 });
 
-// Foods creat
-// app.post("/foods", async (c) => {
-//   const db = drizzle(c.env.my_db, { schema });
-//   const body = await c.req.json();
-//   const result = await db
-//     .insert(schema.food)
-//     .values({
-//       name: body.name,
-//       price: body.price,
-//       foodCategoryId: body.categoryId,
-//     })
-//     .returning();
-//   return c.json(result, 201);
-// });
+// 5. Алдаа баригч (Global Error Handler)
+app.onError((err, c) => {
+  console.error(`${err}`);
+  return c.json({ error: "Internal Server Error", message: err.message }, 500);
+});
 
 export default app;
