@@ -9,6 +9,11 @@ export const users = sqliteTable("User", {
   password: text("password").notNull(),
   age: integer("age"),
   phoneNumber: text("phoneNumber").notNull(),
+  address: text("address"),
+  role: text("role").default("USER"),
+  isVerified: integer("isVerified", { mode: "boolean" }).default(false),
+  createdAt: text("createdAt").default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text("updatedAt").default(sql`CURRENT_TIMESTAMP`),
 });
 
 export const foodCategory = sqliteTable("FoodCategory", {
@@ -33,6 +38,7 @@ export const foodOrder = sqliteTable("FoodOrder", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   totalPrice: text("totalPrice").notNull(),
   status: text("status").notNull().default("PENDING"),
+  userId: integer("userId").references(() => users.id),
   createdAt: text("createdAt").default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text("updatedAt").default(sql`CURRENT_TIMESTAMP`),
 });

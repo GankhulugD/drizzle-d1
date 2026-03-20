@@ -19,8 +19,10 @@ CREATE TABLE `FoodOrder` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`totalPrice` text NOT NULL,
 	`status` text DEFAULT 'PENDING' NOT NULL,
+	`userId` integer,
 	`createdAt` text DEFAULT CURRENT_TIMESTAMP,
-	`updatedAt` text DEFAULT CURRENT_TIMESTAMP
+	`updatedAt` text DEFAULT CURRENT_TIMESTAMP,
+	FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE TABLE `FoodOrderItem` (
@@ -39,7 +41,12 @@ CREATE TABLE `User` (
 	`email` text NOT NULL,
 	`password` text NOT NULL,
 	`age` integer,
-	`phoneNumber` text NOT NULL
+	`phoneNumber` text NOT NULL,
+	`address` text,
+	`role` text DEFAULT 'USER',
+	`isVerified` integer DEFAULT false,
+	`createdAt` text DEFAULT CURRENT_TIMESTAMP,
+	`updatedAt` text DEFAULT CURRENT_TIMESTAMP
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `User_email_unique` ON `User` (`email`);

@@ -1,6 +1,8 @@
 import { Hono } from "hono";
 import { foodRouter } from "./router/foods/food.route";
-import { categoryRouter } from "./router/categories/category.route"; // Category роутерийн зам
+import { categoryRouter } from "./router/categories/category.route";
+import { authRouter } from "./router/auth/auth.route";
+import { orderRouter } from "./router/order/order.route";
 import { Bindings, App } from "./types";
 
 // 1. Hono аппликейшнээ Bindings-тэй нь үүсгэх
@@ -16,17 +18,18 @@ app.use("*", async (c, next) => {
 // 'app' объектыг App төрөл рүү хөрвүүлж дамжуулна (types/index.ts-д тодорхойлсон бол)
 foodRouter(app as unknown as App);
 categoryRouter(app as unknown as App);
+authRouter(app as unknown as App);
+orderRouter(app as unknown as App);
 
-// 4. Үндсэн (Root) зам дээр мэндчилгээ эсвэл статус харуулах
 app.get("/", (c) => {
   return c.json({
-    message: "Food API is running!",
+    message: "Food API is good 👍",
     status: "online",
     timestamp: new Date().toISOString(),
   });
 });
 
-// 5. Алдаа баригч (Global Error Handler)
+// 5. (Global Error Handler)
 app.onError((err, c) => {
   console.error(`${err}`);
   return c.json({ error: "Internal Server Error", message: err.message }, 500);
