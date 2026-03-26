@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { cors } from "hono/cors";
 import { foodRouter } from "./router/foods/food.route";
 import { categoryRouter } from "./router/categories/category.route";
 import { authRouter } from "./router/auth/auth.route";
@@ -13,6 +14,18 @@ app.use("*", async (c, next) => {
   console.log(`[${c.req.method}] ${c.req.url}`);
   await next();
 });
+
+app.use(
+  "/api/*",
+  cors({
+    origin: ["http://localhost:3000", "http://localhost:3001"], // Client болон Admin-ий портууд
+    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowHeaders: ["Content-Type", "Authorization"],
+    exposeHeaders: ["Content-Length"],
+    maxAge: 600,
+    credentials: true,
+  }),
+);
 
 // 3. Роутерүүдээ бүртгэх
 // 'app' объектыг App төрөл рүү хөрвүүлж дамжуулна (types/index.ts-д тодорхойлсон бол)
