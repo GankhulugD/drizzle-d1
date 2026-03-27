@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "9e9448fc-b013-4014-b137-9cbc55c70cea",
+  "id": "aca3693d-7863-4561-8144-ce6a706b0249",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "Food": {
@@ -286,13 +286,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "age": {
-          "name": "age",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "phoneNumber": {
           "name": "phoneNumber",
           "type": "text",
@@ -313,7 +306,7 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
-          "default": "'USER'"
+          "default": 1
         },
         "isVerified": {
           "name": "isVerified",

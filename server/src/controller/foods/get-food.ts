@@ -2,7 +2,7 @@ import { AppContext } from "../../types";
 import { drizzleProvider } from "../../provider";
 
 export const getFoods = async (c: AppContext) => {
-  const d1 = c.env.my_db;
+  const d1 = c.env.new_food_delivery;
 
   const db = await drizzleProvider(d1);
 

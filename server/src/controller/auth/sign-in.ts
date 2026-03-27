@@ -6,7 +6,7 @@ import { AppContext } from "../../types";
 import { drizzleProvider } from "../../provider";
 
 export const signIn = async (c: AppContext) => {
-  const db = await drizzleProvider(c.env.my_db);
+  const db = await drizzleProvider(c.env.new_food_delivery);
   const { email, password } = await c.req.json();
 
   // 1. Хэрэглэгчийг имэйлээр нь хайх

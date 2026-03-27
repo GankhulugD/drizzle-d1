@@ -40,10 +40,9 @@ CREATE TABLE `User` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`email` text NOT NULL,
 	`password` text NOT NULL,
-	`age` integer,
 	`phoneNumber` text NOT NULL,
 	`address` text,
-	`role` text DEFAULT 'USER',
+	`role` text DEFAULT 1,
 	`isVerified` integer DEFAULT false,
 	`createdAt` text DEFAULT CURRENT_TIMESTAMP,
 	`updatedAt` text DEFAULT CURRENT_TIMESTAMP

@@ -3,14 +3,18 @@ import { relations, sql } from "drizzle-orm";
 
 // --- TABLES ---
 
+enum Role {
+  ADMIN,
+  USER,
+}
+
 export const users = sqliteTable("User", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   email: text("email").unique().notNull(),
   password: text("password").notNull(),
-  age: integer("age"),
   phoneNumber: text("phoneNumber").notNull(),
   address: text("address"),
-  role: text("role").default("USER"),
+  role: text("role").$type<Role>().default(Role.USER),
   isVerified: integer("isVerified", { mode: "boolean" }).default(false),
   createdAt: text("createdAt").default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text("updatedAt").default(sql`CURRENT_TIMESTAMP`),

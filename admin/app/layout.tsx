@@ -8,8 +8,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Playmax",
-  description: "Next.js-ээр бүтээв",
+  title: "Food-Delivery",
+  description: "Next.js",
 };
 
 export default function RootLayout({

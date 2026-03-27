@@ -4,9 +4,9 @@ import { AppContext } from "../../types";
 import { drizzleProvider } from "../../provider";
 
 export const signUp = async (c: AppContext) => {
-  const db = await drizzleProvider(c.env.my_db);
-  const { email, password, phoneNumber, age, address, role } =
-    await c.req.json();
+  const db = await drizzleProvider(c.env.new_food_delivery);
+
+  const { email, password, phoneNumber, address } = await c.req.json();
 
   const hashedPassword = await hash(password, 10);
 
@@ -17,12 +17,12 @@ export const signUp = async (c: AppContext) => {
         email,
         password: hashedPassword,
         phoneNumber,
-        age: age ? Number(age) : null,
         address: address || "",
-        role: role || "USER",
         isVerified: false,
       })
       .returning();
+
+    console.log("newUser: ", newUser);
 
     const { password: _, ...userWithoutPassword } = newUser[0];
 
@@ -34,7 +34,7 @@ export const signUp = async (c: AppContext) => {
     console.log(e);
     return c.json(
       {
-        error: "Алдаа гарлаа.",
+        error: e,
       },
       400,
     );

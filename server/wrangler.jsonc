@@ -3,12 +3,12 @@
   "name": "my-app",
   "main": "src/index.ts",
   "compatibility_date": "2026-03-11",
+
   "d1_databases": [
     {
-      "binding": "my_db",
-      "database_name": "my-db",
-      "database_id": "6ce7b313-aaac-4ae4-83f4-94cad4fba119",
-      "migrations_dir": "drizzle",
+      "binding": "new_food_delivery",
+      "database_name": "new_food_delivery",
+      "database_id": "bbd2acf0-0b01-47a9-9b76-a531b981c086",
     },
   ],
   "compatibility_flags": ["nodejs_compat"],
@@ -29,7 +29,7 @@
   // ],
   // "d1_databases": [
   //   {
-  //     "binding": "MY_DB",
+  //     "binding": "new_food_delivery",
   //     "database_name": "my-database",
   //     "database_id": ""
   //   }

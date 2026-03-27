@@ -4,7 +4,7 @@ import { food, foodOrder, foodOrderItem } from "../../db/schema";
 import { inArray } from "drizzle-orm";
 
 export const createOrder = async (c: AppContext) => {
-  const db = await drizzleProvider(c.env.my_db);
+  const db = await drizzleProvider(c.env.new_food_delivery);
 
   // (foodId, quantity) ирнэ
   const { userId, items } = await c.req.json();

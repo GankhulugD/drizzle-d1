@@ -4,7 +4,7 @@ import { drizzleProvider } from "../../provider";
 import { foodCategory } from "../../db/schema";
 
 export const patchCategory = async (c: AppContext) => {
-  const db = await drizzleProvider(c.env.my_db);
+  const db = await drizzleProvider(c.env.new_food_delivery);
   const id = Number(c.req.param("id"));
   const { name } = await c.req.json();
 

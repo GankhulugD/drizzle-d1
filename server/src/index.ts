@@ -6,30 +6,26 @@ import { authRouter } from "./router/auth/auth.route";
 import { orderRouter } from "./router/order/order.route";
 import { Bindings, App } from "./types";
 
-// 1. Hono аппликейшнээ Bindings-тэй нь үүсгэх
 const app = new Hono<{ Bindings: Bindings }>();
 
-// 2. Middleware (Дурын нэмэлт тохиргоо, жишээ нь Logger)
 app.use("*", async (c, next) => {
   console.log(`[${c.req.method}] ${c.req.url}`);
   await next();
 });
 
+app.use(cors());
+
 app.use(
-  "/api/*",
+  "/api3/*",
   cors({
-    origin: ["http://localhost:3000", "http://localhost:3001"], // Client болон Admin-ий портууд
-    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowHeaders: ["Content-Type", "Authorization"],
-    exposeHeaders: ["Content-Length"],
-    maxAge: 600,
-    credentials: true,
+    origin: [
+      "https://my-app.gankhulug12345.workers.dev",
+      "http://localhost:3000",
+    ],
   }),
 );
 
-// 3. Роутерүүдээ бүртгэх
-// 'app' объектыг App төрөл рүү хөрвүүлж дамжуулна (types/index.ts-д тодорхойлсон бол)
-foodRouter(app as unknown as App);
+foodRouter(app);
 categoryRouter(app as unknown as App);
 authRouter(app as unknown as App);
 orderRouter(app as unknown as App);

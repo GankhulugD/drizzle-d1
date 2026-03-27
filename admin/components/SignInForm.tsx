@@ -1,4 +1,5 @@
-import { cn } from "@/lib/utils";
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,13 +15,37 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { ChangeEventHandler, useState } from "react";
 
-export function LoginForm({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
+type Form = {
+  email: string;
+  password: string;
+};
+
+export const SignInForm = () => {
+  const [form, setForm] = useState<Form>({
+    email: "",
+    password: "",
+  });
+
+  const handleChange: ChangeEventHandler<HTMLInputElement, HTMLInputElement> = (
+    event,
+  ) => {
+    setForm({ ...form, [event.target.name]: event.target.value });
+  };
+  console.log(JSON.stringify(form));
+
+  const onSubmit = async () => {
+    await fetch("http://localhost:8787/auth/sign-in", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(form),
+    });
+  };
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    <div>
       <Card>
         <CardHeader>
           <CardTitle>Login to your account</CardTitle>
@@ -38,6 +63,8 @@ export function LoginForm({
                   type="email"
                   placeholder="m@example.com"
                   required
+                  value={form.email}
+                  onChange={handleChange}
                 />
               </Field>
               <Field>
@@ -50,13 +77,19 @@ export function LoginForm({
                     Forgot your password?
                   </a>
                 </div>
-                <Input id="password" type="password" required />
+                <Input
+                  id="password"
+                  type="password"
+                  required
+                  value={form.password}
+                  onChange={handleChange}
+                />
               </Field>
               <Field>
-                <Button type="submit">Login</Button>
-                <Button variant="outline" type="button">
-                  Login with Google
+                <Button type="button" onClick={onSubmit}>
+                  Login
                 </Button>
+
                 <FieldDescription className="text-center">
                   Don&apos;t have an account? <a href="./sign-up">Sign up</a>
                 </FieldDescription>
@@ -67,4 +100,4 @@ export function LoginForm({
       </Card>
     </div>
   );
-}
+};

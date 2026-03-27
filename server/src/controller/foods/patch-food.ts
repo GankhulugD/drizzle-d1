@@ -4,7 +4,7 @@ import { drizzleProvider } from "../../provider";
 import { food } from "../../db/schema";
 
 export const patchFood = async (c: AppContext) => {
-  const d1 = c.env.my_db;
+  const d1 = c.env.new_food_delivery;
   const db = await drizzleProvider(d1);
   const id = Number(c.req.param("id")); // URL-аас ID-г авна
   const body = await c.req.json();
