@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { ChangeEventHandler, useState } from "react";
+import Cookies from "js-cookie";
 
 type Form = {
   email: string;
@@ -36,14 +37,33 @@ export const SignInForm = () => {
   console.log(JSON.stringify(form));
 
   const onSubmit = async () => {
-    await fetch("http://localhost:8787/auth/sign-in", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(form),
-    });
+    try {
+      const response = await fetch("http://localhost:8787/auth/sign-in", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        Cookies.set("token", data.token, { expires: 7 });
+        if (data.user.role === 2) {
+          window.location.href = "/home";
+        } else {
+          window.location.href = "/home";
+        }
+
+        console.log("Амжилттай нэвтэрлээ:", data.message);
+      } else {
+        alert(data.message || "Имэйл эсвэл нууц үг буруу байна!");
+      }
+    } catch (error) {
+      console.error("Fetch error:", error);
+      alert("Сервертэй холбогдоход алдаа гарлаа.");
+    }
   };
+
   return (
     <div>
       <Card>
@@ -61,6 +81,7 @@ export const SignInForm = () => {
                 <Input
                   id="email"
                   type="email"
+                  name="email"
                   placeholder="m@example.com"
                   required
                   value={form.email}
@@ -80,6 +101,7 @@ export const SignInForm = () => {
                 <Input
                   id="password"
                   type="password"
+                  name="password"
                   required
                   value={form.password}
                   onChange={handleChange}
