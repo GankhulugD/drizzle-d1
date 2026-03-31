@@ -15,36 +15,54 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { ChangeEventHandler, useState } from "react";
+import { useRouter } from "next/navigation";
 
-type Form = {
-  email: string;
-  password: string;
-  phoneNumber: string;
-  address: string;
-};
 export const SignUpForm = () => {
-  const [form, setForm] = useState<Form>({
+  const router = useRouter();
+  const [form, setForm] = useState({
     email: "",
     password: "",
+    confirmPassword: "",
     phoneNumber: "",
     address: "",
   });
 
-  const handleChange: ChangeEventHandler<HTMLInputElement, HTMLInputElement> = (
-    event,
-  ) => {
+  const handleChange: ChangeEventHandler<HTMLInputElement> = (event) => {
     setForm({ ...form, [event.target.name]: event.target.value });
   };
-  console.log(JSON.stringify(form));
 
   const onSubmit = async () => {
-    await fetch("http://localhost:8787/auth/sign-up", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(form),
-    });
+    if (form.password !== form.confirmPassword) {
+      alert("Нууц үг хоорондоо таарахгүй байна!");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:8787/auth/sign-up", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: form.email,
+          password: form.password,
+          phoneNumber: form.phoneNumber,
+          address: form.address,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Бүртгэл амжилттай! Одоо нэвтэрнэ үү.");
+        router.push("/auth/sign-in");
+      } else {
+        alert(data.message || "Бүртгэл хийхэд алдаа гарлаа.");
+      }
+    } catch (error) {
+      console.error("Sign up error:", error);
+      alert("Сервертэй холбогдож чадсангүй.");
+    }
   };
 
   return (
@@ -68,11 +86,32 @@ export const SignUpForm = () => {
                 value={form.email}
                 onChange={handleChange}
               />
-              <FieldDescription>
-                We&apos;ll use this to contact you. We will not share your email
-                with anyone else.
-              </FieldDescription>
             </Field>
+
+            <Field>
+              <FieldLabel htmlFor="phoneNumber">Phone Number</FieldLabel>
+              <Input
+                name="phoneNumber"
+                type="text"
+                placeholder="88******"
+                required
+                value={form.phoneNumber}
+                onChange={handleChange}
+              />
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor="address">Address</FieldLabel>
+              <Input
+                name="address"
+                type="text"
+                placeholder="Ulaanbaatar, ..."
+                required
+                value={form.address}
+                onChange={handleChange}
+              />
+            </Field>
+
             <Field>
               <FieldLabel htmlFor="password">Password</FieldLabel>
               <Input
@@ -82,56 +121,32 @@ export const SignUpForm = () => {
                 value={form.password}
                 onChange={handleChange}
               />
-              <FieldDescription>
-                Must be at least 8 characters long.
-              </FieldDescription>
             </Field>
+
             <Field>
-              <FieldLabel htmlFor="phoneNumber">phoneNumber</FieldLabel>
-              <Input
-                name="phoneNumber"
-                type="text"
-                required
-                value={form.phoneNumber}
-                onChange={handleChange}
-              />
-              <FieldDescription>
-                Must be at least 8 characters long.
-              </FieldDescription>
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="address">address</FieldLabel>
-              <Input
-                name="address"
-                type="text"
-                required
-                value={form.address}
-                onChange={handleChange}
-              />
-              <FieldDescription>
-                Must be at least 8 characters long.
-              </FieldDescription>
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="confirm-password">
+              <FieldLabel htmlFor="confirmPassword">
                 Confirm Password
               </FieldLabel>
-              <Input id="confirm-password" type="password" required />
-              <FieldDescription>Please confirm your password.</FieldDescription>
+              <Input
+                name="confirmPassword"
+                type="password"
+                required
+                value={form.confirmPassword}
+                onChange={handleChange}
+              />
             </Field>
-            <FieldGroup>
-              <Field>
-                <Button type="button" onClick={onSubmit}>
-                  Create Account
-                </Button>
-                <Button variant="outline" type="button">
-                  Sign up with Google
-                </Button>
-                <FieldDescription className="px-6 text-center">
-                  Already have an account? <a href="./auth/login">Sign in</a>
-                </FieldDescription>
-              </Field>
-            </FieldGroup>
+
+            <div className="flex flex-col gap-2 pt-4">
+              <Button type="button" onClick={onSubmit} className="w-full">
+                Create Account
+              </Button>
+              <p className="text-sm text-center text-gray-500">
+                Already have an account?{" "}
+                <a href="/auth/login" className="text-black underline">
+                  Sign in
+                </a>
+              </p>
+            </div>
           </FieldGroup>
         </form>
       </CardContent>

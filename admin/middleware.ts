@@ -1,3 +1,4 @@
+// middleware.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
@@ -5,12 +6,21 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
   const { pathname } = request.nextUrl;
 
-  // 1. Хэрэв token байхгүй бол /home руу нэвтрүүлэхгүй
-  if (!token && pathname.startsWith("/home")) {
-    return NextResponse.redirect(new URL("/auth/sign-in", request.url));
+  // 1. Root зам буюу "/" дээр орж ирэхэд token байхгүй бол sign-in руу
+  if (pathname === "/") {
+    if (!token) {
+      return NextResponse.redirect(new URL("/auth/login", request.url));
+    } else {
+      return NextResponse.redirect(new URL("/home", request.url));
+    }
   }
 
-  // 2. Хэрэв token байгаа бол /auth хуудаснууд руу дахин оруулахгүй
+  // 2. Token байхгүй үед /home руу орох гэвэл sign-in руу
+  if (!token && pathname.startsWith("/home")) {
+    return NextResponse.redirect(new URL("/auth/login", request.url));
+  }
+
+  // 3. Token байгаа үед /auth хуудаснууд руу орох гэвэл home руу
   if (token && pathname.startsWith("/auth")) {
     return NextResponse.redirect(new URL("/home", request.url));
   }
@@ -19,6 +29,6 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Middleware ажиллах замуудыг тодорхойлно
-  matcher: ["/home/:path*", "/auth/:path*"],
+  // "/" замыг заавал matcher дотор нэмж өгөх хэрэгтэй
+  matcher: ["/", "/home/:path*", "/auth/:path*"],
 };
