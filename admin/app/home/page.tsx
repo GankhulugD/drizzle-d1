@@ -10,6 +10,5 @@ export default async function HomePage() {
     redirect("/auth/sign-in");
   }
 
-  // Зөвхөн Auth шалгаад AdminLayout-ыг дуудна
   return <AdminLayout />;
 }
