@@ -46,7 +46,8 @@ export const createOrder = async (c: AppContext) => {
       .values({
         userId: userId,
         totalPrice: String(calculatedTotal), // Backend дээр бодсон үнэ
-        status: "PENDING",
+        status: "Pending",
+        deliveryAddress: items[0]?.deliveryAddress || "",
       })
       .returning();
 

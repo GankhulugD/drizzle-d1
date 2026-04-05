@@ -7,9 +7,10 @@ export const createFood = async (c: AppContext) => {
 
   const db = await drizzleProvider(d1);
 
-  const { name, price, foodCategoryId } = await c.req.json();
+  const { name, price, foodCategoryId, description, image } =
+    await c.req.json();
 
-  console.log("body: ", name, price, foodCategoryId);
+  console.log("body: ", name, price, foodCategoryId, description, image);
 
   try {
     const result = await db
@@ -18,6 +19,8 @@ export const createFood = async (c: AppContext) => {
         name: name,
         price: String(price),
         foodCategoryId: Number(foodCategoryId),
+        description: description || "",
+        image: image || "",
       })
       .returning();
 

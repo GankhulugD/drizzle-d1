@@ -8,6 +8,6 @@ export type Food = {
   name: string;
   price: string;
   foodCategoryId: number;
-  description?: string; // Ingredients хэсэг
-  image?: string; // Зураг
+  description: string;
+  image: string;
 };

@@ -18,6 +18,10 @@ export const patchFood = async (c: AppContext) => {
         ...(body.foodCategoryId && {
           foodCategoryId: Number(body.foodCategoryId),
         }),
+        ...(body.description !== undefined && {
+          description: body.description,
+        }),
+        ...(body.image !== undefined && { image: body.image }),
       })
       .where(eq(food.id, id))
       .returning();

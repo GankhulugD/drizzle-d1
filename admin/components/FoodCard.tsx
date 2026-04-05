@@ -7,12 +7,31 @@ type Props = {
   onDelete: (id: number) => void; // onDelete нэмсэн
 };
 
+const convertImgbbUrl = (url: string | null | undefined): string => {
+  if (!url) return "/placeholder.jpg";
+
+  // Хэрэв https://ibb.co/{id} хэлбэртэй бол https://ibb.co/image/{id} болгоно
+  if (url.includes("ibb.co")) {
+    // Аль хэдийнээ /image/ эсвэл /th/ байгаа бол шууд буцаан өгнө
+    if (url.includes("/image/") || url.includes("/th/")) {
+      return url;
+    }
+    
+    // Энгийн ibb.co/{id} хэлбэр бол /image/ нэмнэ
+    if (url.match(/ibb\.co\/\w+$/)) {
+      return url.replace("ibb.co/", "ibb.co/image/");
+    }
+  }
+
+  return url;
+};
+
 export const FoodCard = ({ food, onEdit, onDelete }: Props) => {
   return (
     <div className="border rounded-xl overflow-hidden bg-white shadow-sm flex flex-col group">
       <div className="relative">
         <img
-          src={food.image || "/placeholder.jpg"}
+          src={convertImgbbUrl(food.image)}
           className="w-full h-36 object-cover"
         />
 

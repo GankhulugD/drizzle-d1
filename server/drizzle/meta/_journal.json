@@ -8,6 +8,13 @@
       "when": 1774581940143,
       "tag": "0000_ancient_dagger",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1775380327775,
+      "tag": "0001_salty_cerise",
+      "breakpoints": true
     }
   ]
 }

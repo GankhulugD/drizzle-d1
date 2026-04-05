@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from "react";
-import { X, Trash2 } from "lucide-react";
-import { Food, Category } from "../../types";
+import { useState } from "react";
+import { X, Trash2, Link as LinkIcon } from "lucide-react";
+import { Category, Food } from "../../types";
 
-type Props = {
+interface Props {
   editFood: Food;
   categories: Category[];
   onClose: () => void;
@@ -13,9 +13,25 @@ type Props = {
     description: string,
     image: string,
     categoryId: number,
-  ) => void;
-  onDelete: (id: number) => void;
+  ) => Promise<void>;
+  onDelete: (id: number) => Promise<void>;
   loading: boolean;
+}
+
+const convertImgbbUrl = (url: string | null | undefined): string => {
+  if (!url) return "";
+
+  if (url.includes("ibb.co")) {
+    if (url.includes("/image/") || url.includes("/th/")) {
+      return url;
+    }
+    
+    if (url.match(/ibb\.co\/\w+$/)) {
+      return url.replace("ibb.co/", "ibb.co/image/");
+    }
+  }
+  
+  return url;
 };
 
 export const EditFoodModal = ({
@@ -26,163 +42,97 @@ export const EditFoodModal = ({
   onDelete,
   loading,
 }: Props) => {
-  const [editName, setEditName] = useState("");
-  const [editPrice, setEditPrice] = useState("");
-  const [editDesc, setEditDesc] = useState("");
-  const [editCatId, setEditCatId] = useState<number>(0);
-  const [editImage, setEditImage] = useState("");
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    setEditName(editFood.name);
-    setEditPrice(editFood.price);
-    setEditDesc(editFood.description || "");
-    setEditCatId(editFood.foodCategoryId);
-    setEditImage(editFood.image || "");
-  }, [editFood]);
-
-  const handleSave = () => {
-    if (editName.trim() && editPrice.trim()) {
-      onSave(editFood.id, editName, editPrice, editDesc, editImage, editCatId);
-    }
-  };
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Зургийг Base64 болгож унших (Backend рүү илгээхэд эсвэл харуулахад хялбар)
-      const reader = new FileReader();
-      reader.onloadend = () => setEditImage(reader.result as string);
-      reader.readAsDataURL(file);
-    }
-  };
+  const [name, setName] = useState(editFood.name);
+  const [price, setPrice] = useState(editFood.price);
+  const [description, setDescription] = useState(editFood.description || "");
+  const [image, setImage] = useState(editFood.image || "");
+  const [categoryId, setCategoryId] = useState(editFood.foodCategoryId);
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl p-6 w-full max-w-lg shadow-2xl">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 font-sans">
+      <div className="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl font-bold">Dishes info</h3>
+          <h2 className="text-2xl font-bold">Edit Food</h2>
           <button
-            onClick={onClose}
-            className="p-1 rounded-full bg-gray-100 hover:bg-gray-200 transition"
+            onClick={() => onDelete(editFood.id)}
+            className="p-2 text-gray-400 hover:text-red-500 transition"
           >
-            <X size={18} className="text-gray-600" />
+            <Trash2 size={20} />
           </button>
         </div>
 
         <div className="space-y-4">
-          {/* Dish name */}
-          <div className="grid grid-cols-[120px_1fr] items-center gap-4">
-            <label className="text-sm font-medium text-gray-600">
-              Dish name
-            </label>
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full border rounded-xl p-3"
+            placeholder="Name"
+          />
+          <input
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            className="w-full border rounded-xl p-3"
+            placeholder="Price"
+          />
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full border rounded-xl p-3 h-20"
+            placeholder="Description"
+          />
+          <div className="relative">
+            <LinkIcon
+              className="absolute left-3 top-3.5 text-gray-400"
+              size={18}
+            />
             <input
-              value={editName}
-              onChange={(e) => setEditName(e.target.value)}
-              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-red-300"
+              value={image}
+              onChange={(e) => setImage(e.target.value)}
+              className="w-full border rounded-xl p-3 pl-10"
+              placeholder="Image Link"
             />
           </div>
-
-          {/* Dish category */}
-          <div className="grid grid-cols-[120px_1fr] items-center gap-4">
-            <label className="text-sm font-medium text-gray-600">
-              Dish category
-            </label>
-            <select
-              value={editCatId}
-              onChange={(e) => setEditCatId(Number(e.target.value))}
-              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-red-300 bg-white"
-            >
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Ingredients */}
-          <div className="grid grid-cols-[120px_1fr] items-start gap-4">
-            <label className="text-sm font-medium text-gray-600 mt-2">
-              Ingredients
-            </label>
-            <textarea
-              value={editDesc}
-              onChange={(e) => setEditDesc(e.target.value)}
-              placeholder="Fluffy pancakes stacked with fruits..."
-              className="w-full border rounded-lg px-3 py-2 text-sm h-24 resize-none focus:outline-none focus:border-red-300"
-            />
-          </div>
-
-          {/* Price */}
-          <div className="grid grid-cols-[120px_1fr] items-center gap-4">
-            <label className="text-sm font-medium text-gray-600">Price</label>
-            <input
-              value={editPrice}
-              onChange={(e) => setEditPrice(e.target.value)}
-              type="number"
-              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-red-300"
-            />
-          </div>
-
-          {/* Image */}
-          <div className="grid grid-cols-[120px_1fr] items-start gap-4">
-            <label className="text-sm font-medium text-gray-600 mt-2">
-              Image
-            </label>
-            <div>
-              {editImage ? (
-                <div className="relative w-40 h-24 rounded-lg border overflow-hidden">
-                  <img
-                    src={editImage}
-                    alt="Preview"
-                    className="w-full h-full object-cover"
-                  />
-                  <button
-                    onClick={() => setEditImage("")}
-                    className="absolute top-1 right-1 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-md hover:scale-105"
-                  >
-                    <X size={14} className="text-gray-700" />
-                  </button>
-                </div>
-              ) : (
-                <div>
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="border-2 border-dashed border-gray-300 rounded-lg w-full py-4 text-sm text-gray-500 hover:bg-gray-50 transition"
-                  >
-                    Зураг оруулах
-                  </button>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    ref={fileInputRef}
-                    onChange={handleImageUpload}
-                    className="hidden"
-                  />
-                </div>
-              )}
+          {image && (
+            <div className="h-24 w-full rounded-lg border overflow-hidden">
+              <img
+                src={convertImgbbUrl(image)}
+                alt="Preview"
+                className="w-full h-full object-cover"
+                onError={(e) =>
+                  (e.currentTarget.src =
+                    "https://via.placeholder.com/150?text=Invalid+Link")
+                }
+              />
             </div>
-          </div>
+          )}
+          <select
+            value={categoryId}
+            onChange={(e) => setCategoryId(Number(e.target.value))}
+            className="w-full border rounded-xl p-3 bg-white"
+          >
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex justify-between items-center mt-8 pt-4 border-t">
+        <div className="flex gap-3 mt-8">
           <button
-            onClick={() => onDelete(editFood.id)}
-            className="w-10 h-10 flex items-center justify-center border border-red-200 text-red-500 rounded-lg hover:bg-red-50 transition"
-            title="Устгах"
+            onClick={onClose}
+            className="flex-1 py-4 font-bold text-gray-500"
           >
-            <Trash2 size={18} />
+            Cancel
           </button>
-
           <button
-            onClick={handleSave}
-            disabled={loading || !editName.trim() || !editPrice.trim()}
-            className="bg-black text-white px-6 py-2.5 rounded-lg font-semibold text-sm hover:bg-gray-800 transition disabled:opacity-40"
+            onClick={() =>
+              onSave(editFood.id, name, price, description, image, categoryId)
+            }
+            className="flex-1 bg-black text-white rounded-xl py-4 font-bold"
+            disabled={loading}
           >
-            {loading ? "Хадгалж байна..." : "Save changes"}
+            {loading ? "Updating..." : "Update"}
           </button>
         </div>
       </div>

@@ -5,18 +5,41 @@ import { foodOrder } from "../../db/schema";
 
 export const getOrders = async (c: AppContext) => {
   const db = await drizzleProvider(c.env.new_food_delivery);
-  const userId = Number(c.req.param("userId"));
+  const userId = c.req.param("userId");
 
-  const orders = await db.query.foodOrder.findMany({
-    where: eq(foodOrder.userId, userId),
-    with: {
-      foodOrderItems: {
+  try {
+    let orders;
+
+    if (userId) {
+      // Тодорхой хэрэглэгчийн захиалгууд
+      orders = await db.query.foodOrder.findMany({
+        where: eq(foodOrder.userId, Number(userId)),
         with: {
-          food: true,
+          foodOrderItems: {
+            with: {
+              food: true,
+            },
+          },
+          user: true,
         },
-      },
-    },
-  });
+      });
+    } else {
+      // Бүх захиалгууд (админ дашбоард)
+      orders = await db.query.foodOrder.findMany({
+        with: {
+          foodOrderItems: {
+            with: {
+              food: true,
+            },
+          },
+          user: true,
+        },
+      });
+    }
 
-  return c.json({ orders });
+    return c.json({ orders });
+  } catch (err) {
+    console.log("Order fetch error:", err);
+    return c.json({ error: "Захиалга татахад алдаа гарлаа" }, 500);
+  }
 };

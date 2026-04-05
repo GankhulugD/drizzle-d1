@@ -1,12 +1,34 @@
 import { useState } from "react";
-import { X, ImageIcon } from "lucide-react";
+import { X, Link as LinkIcon } from "lucide-react";
 import { Category } from "../../types";
 
-type Props = {
+interface Props {
   targetCat: Category;
   onClose: () => void;
-  onSave: (name: string, price: string, categoryId: number) => void;
+  onSave: (
+    name: string,
+    price: string,
+    categoryId: number,
+    description: string,
+    image: string,
+  ) => Promise<void>;
   loading: boolean;
+}
+
+const convertImgbbUrl = (url: string | null | undefined): string => {
+  if (!url) return "";
+
+  if (url.includes("ibb.co")) {
+    if (url.includes("/image/") || url.includes("/th/")) {
+      return url;
+    }
+    
+    if (url.match(/ibb\.co\/\w+$/)) {
+      return url.replace("ibb.co/", "ibb.co/image/");
+    }
+  }
+  
+  return url;
 };
 
 export const AddFoodModal = ({
@@ -15,64 +37,113 @@ export const AddFoodModal = ({
   onSave,
   loading,
 }: Props) => {
-  const [foodName, setFoodName] = useState("");
-  const [foodPrice, setFoodPrice] = useState("");
+  const [name, setName] = useState<string>("");
+  const [price, setPrice] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+  const [image, setImage] = useState<string>("");
 
-  const handleSave = () => {
-    if (foodName.trim() && foodPrice.trim()) {
-      onSave(foodName, foodPrice, targetCat.id);
+  const handleSubmit = async () => {
+    if (name && price && image) {
+      await onSave(name, price, targetCat.id, description, image);
+    } else {
+      alert("Нэр, үнэ болон зургийн линкийг заавал оруулна уу!");
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
-        <div className="flex justify-between items-center mb-5">
-          <h3 className="text-lg font-bold">
-            Add new Dish to{" "}
-            <span className="text-red-500">{targetCat.name}</span>
-          </h3>
-          <button onClick={onClose}>
-            <X size={20} className="text-gray-400 hover:text-black" />
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 font-sans text-gray-800">
+      <div className="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl">
+        <div className="flex justify-between items-start mb-6">
+          <div>
+            <h2 className="text-2xl font-bold">Add New Dish</h2>
+            <p className="text-sm text-gray-500 italic">
+              to {targetCat.name} category
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-full transition"
+          >
+            <X size={20} />
           </button>
         </div>
-        <div className="flex gap-3 mb-3">
-          <div className="flex-1">
-            <label className="block text-sm font-medium mb-1">Food name</label>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-semibold mb-1">
+              Food Name *
+            </label>
             <input
-              value={foodName}
-              onChange={(e) => setFoodName(e.target.value)}
-              placeholder="Type food name"
-              autoFocus
-              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-red-400 outline-none"
+              placeholder="e.g. Spicy Chicken"
             />
           </div>
-          <div className="flex-1">
-            <label className="block text-sm font-medium mb-1">Food price</label>
+
+          <div>
+            <label className="block text-sm font-semibold mb-1">
+              Price (₮) *
+            </label>
             <input
-              value={foodPrice}
-              onChange={(e) => setFoodPrice(e.target.value)}
-              placeholder="Enter price..."
               type="number"
-              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              className="w-full border border-gray-300 rounded-xl p-3 outline-none"
+              placeholder="0.00"
             />
           </div>
-        </div>
-        <div className="mb-5">
-          <label className="block text-sm font-medium mb-1">Food image</label>
-          <div className="border-2 border-dashed border-blue-200 rounded-lg p-6 flex flex-col items-center justify-center bg-blue-50 text-gray-400 gap-2">
-            <ImageIcon size={24} />
-            <span className="text-sm">
-              Choose a file or drag & drop it here
-            </span>
+
+          <div>
+            <label className="block text-sm font-semibold mb-1">
+              Description / Ingredients
+            </label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full border border-gray-300 rounded-xl p-3 h-20 resize-none outline-none"
+              placeholder="What's inside?"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold mb-1">
+              Image URL *
+            </label>
+            <div className="relative">
+              <LinkIcon
+                className="absolute left-3 top-3.5 text-gray-400"
+                size={18}
+              />
+              <input
+                value={image}
+                onChange={(e) => setImage(e.target.value)}
+                className="w-full border border-gray-300 rounded-xl p-3 pl-10 outline-none focus:border-red-400"
+                placeholder="https://example.com/image.jpg"
+              />
+            </div>
+            {image && (
+              <div className="mt-2 h-24 w-full rounded-lg border overflow-hidden">
+                <img
+                  src={convertImgbbUrl(image)}
+                  alt="Preview"
+                  className="w-full h-full object-cover"
+                  onError={(e) =>
+                    (e.currentTarget.src =
+                      "https://via.placeholder.com/150?text=Invalid+Link")
+                  }
+                />
+              </div>
+            )}
           </div>
         </div>
+
         <button
-          onClick={handleSave}
-          disabled={loading || !foodName.trim() || !foodPrice.trim()}
-          className="w-full bg-black text-white py-2.5 rounded-lg font-semibold hover:bg-gray-800 transition disabled:opacity-40"
+          onClick={handleSubmit}
+          disabled={loading || !name || !price || !image}
+          className="w-full bg-red-500 text-white rounded-xl py-4 mt-8 font-bold hover:bg-red-600 transition disabled:opacity-50"
         >
-          {loading ? "Нэмж байна..." : "Add Dish"}
+          {loading ? "Saving..." : "Save Dish"}
         </button>
       </div>
     </div>
