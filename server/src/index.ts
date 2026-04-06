@@ -4,31 +4,33 @@ import { foodRouter } from "./router/foods/food.route";
 import { categoryRouter } from "./router/categories/category.route";
 import { authRouter } from "./router/auth/auth.route";
 import { orderRouter } from "./router/order/order.route";
-import { Bindings, App } from "./types";
+import { Bindings, Variables } from "./types";
 
-const app = new Hono<{ Bindings: Bindings }>();
+const app = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
 app.use("*", async (c, next) => {
   console.log(`[${c.req.method}] ${c.req.url}`);
   await next();
 });
 
-app.use(cors());
-
 app.use(
-  "/api3/*",
   cors({
     origin: [
       "https://my-app.gankhulug12345.workers.dev",
       "http://localhost:3000",
     ],
+    allowHeaders: ["Content-Type", "Authorization"],
+    allowMethods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
   }),
 );
 
-foodRouter(app);
-categoryRouter(app as unknown as App);
-authRouter(app as unknown as App);
-orderRouter(app as unknown as App);
+// Auth routes — middleware хэрэггүй
+authRouter(app as any);
+
+// Protected routes — middleware дотроо байна
+foodRouter(app as any);
+categoryRouter(app as any);
+orderRouter(app as any);
 
 app.get("/", (c) => {
   return c.json({
@@ -38,7 +40,6 @@ app.get("/", (c) => {
   });
 });
 
-// 5. (Global Error Handler)
 app.onError((err, c) => {
   console.error(`${err}`);
   return c.json({ error: "Internal Server Error", message: err.message }, 500);

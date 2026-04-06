@@ -1,7 +1,16 @@
 import { Context, Hono } from "hono";
 
-export type Bindings = Cloudflare.Env;
+export type Bindings = Cloudflare.Env & {
+  JWT_SECRET: string;
+};
 
-export type App = Hono<{ Bindings: Bindings }>;
+export type Variables = {
+  user: {
+    sub: number;
+    email: string;
+    exp: number;
+  };
+};
 
-export type AppContext = Context<{ Bindings: Bindings }>;
+export type App = Hono<{ Bindings: Bindings; Variables: Variables }>;
+export type AppContext = Context<{ Bindings: Bindings; Variables: Variables }>;

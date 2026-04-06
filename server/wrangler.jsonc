@@ -1,9 +1,53 @@
+// {
+//   "$schema": "node_modules/wrangler/config-schema.json",
+//   "name": "my-app",
+//   "main": "src/index.ts",
+//   "compatibility_date": "2026-03-11",
+
+//   "d1_databases": [
+//     {
+//       "binding": "new_food_delivery",
+//       "database_name": "new_food_delivery",
+//       "database_id": "bbd2acf0-0b01-47a9-9b76-a531b981c086",
+//     },
+//   ],
+//   "compatibility_flags": ["nodejs_compat"],
+
+//   // "vars": {
+//   //   "MY_VAR": "my-variable"
+//   // },
+//   // "kv_namespaces": [
+//   //   {
+//   //     "binding": "MY_KV_NAMESPACE",
+//   //     "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+//   //   }
+//   // ],
+//   // "r2_buckets": [
+//   //   {
+//   //     "binding": "MY_BUCKET",
+//   //     "bucket_name": "my-bucket"
+//   //   }
+//   // ],
+//   // "d1_databases": [
+//   //   {
+//   //     "binding": "new_food_delivery",
+//   //     "database_name": "my-database",
+//   //     "database_id": ""
+//   //   }
+//   // ],
+//   // "ai": {
+//   //   "binding": "AI"
+//   // },
+//   // "observability": {
+//   //   "enabled": true,
+//   //   "head_sampling_rate": 1
+//   // }
+// }
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "my-app",
   "main": "src/index.ts",
   "compatibility_date": "2026-03-11",
-
   "d1_databases": [
     {
       "binding": "new_food_delivery",
@@ -12,33 +56,7 @@
     },
   ],
   "compatibility_flags": ["nodejs_compat"],
-  // "vars": {
-  //   "MY_VAR": "my-variable"
-  // },
-  // "kv_namespaces": [
-  //   {
-  //     "binding": "MY_KV_NAMESPACE",
-  //     "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-  //   }
-  // ],
-  // "r2_buckets": [
-  //   {
-  //     "binding": "MY_BUCKET",
-  //     "bucket_name": "my-bucket"
-  //   }
-  // ],
-  // "d1_databases": [
-  //   {
-  //     "binding": "new_food_delivery",
-  //     "database_name": "my-database",
-  //     "database_id": ""
-  //   }
-  // ],
-  // "ai": {
-  //   "binding": "AI"
-  // },
-  // "observability": {
-  //   "enabled": true,
-  //   "head_sampling_rate": 1
-  // }
+  "vars": {
+    "JWT_SECRET": "xK9#mP2$nQ8@vL5&wR3jH7!cF4*bN6^qT1",
+  },
 }
