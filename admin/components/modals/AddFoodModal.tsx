@@ -15,19 +15,11 @@ interface Props {
   loading: boolean;
 }
 
-const convertImgbbUrl = (url: string | null | undefined): string => {
+const getPreviewImage = (url: string): string => {
   if (!url) return "";
-
-  if (url.includes("ibb.co")) {
-    if (url.includes("/image/") || url.includes("/th/")) {
-      return url;
-    }
-    
-    if (url.match(/ibb\.co\/\w+$/)) {
-      return url.replace("ibb.co/", "ibb.co/image/");
-    }
-  }
-  
+  if (url.includes("i.ibb.co")) return url;
+  if (url.includes("ibb.co") && !url.includes("i.ibb.co"))
+    return "https://placehold.co/400x300?text=Use+Direct+Link";
   return url;
 };
 
@@ -37,21 +29,13 @@ export const AddFoodModal = ({
   onSave,
   loading,
 }: Props) => {
-  const [name, setName] = useState<string>("");
-  const [price, setPrice] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
-  const [image, setImage] = useState<string>("");
-
-  const handleSubmit = async () => {
-    if (name && price && image) {
-      await onSave(name, price, targetCat.id, description, image);
-    } else {
-      alert("Нэр, үнэ болон зургийн линкийг заавал оруулна уу!");
-    }
-  };
+  const [name, setName] = useState("");
+  const [price, setPrice] = useState("");
+  const [description, setDescription] = useState("");
+  const [image, setImage] = useState("");
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 font-sans text-gray-800">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl">
         <div className="flex justify-between items-start mb-6">
           <div>
@@ -62,7 +46,7 @@ export const AddFoodModal = ({
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition"
+            className="p-2 hover:bg-gray-100 rounded-full"
           >
             <X size={20} />
           </button>
@@ -76,7 +60,7 @@ export const AddFoodModal = ({
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-red-400 outline-none"
+              className="w-full border border-gray-300 rounded-xl p-3 outline-none focus:ring-2 focus:ring-red-400"
               placeholder="e.g. Spicy Chicken"
             />
           </div>
@@ -90,7 +74,7 @@ export const AddFoodModal = ({
               value={price}
               onChange={(e) => setPrice(e.target.value)}
               className="w-full border border-gray-300 rounded-xl p-3 outline-none"
-              placeholder="0.00"
+              placeholder="0"
             />
           </div>
 
@@ -108,7 +92,7 @@ export const AddFoodModal = ({
 
           <div>
             <label className="block text-sm font-semibold mb-1">
-              Image URL *
+              Image URL *{" "}
             </label>
             <div className="relative">
               <LinkIcon
@@ -119,18 +103,19 @@ export const AddFoodModal = ({
                 value={image}
                 onChange={(e) => setImage(e.target.value)}
                 className="w-full border border-gray-300 rounded-xl p-3 pl-10 outline-none focus:border-red-400"
-                placeholder="https://example.com/image.jpg"
+                placeholder="https://i.ibb.co/xxxxx/image.jpg"
               />
             </div>
+
             {image && (
               <div className="mt-2 h-24 w-full rounded-lg border overflow-hidden">
                 <img
-                  src={convertImgbbUrl(image)}
+                  src={getPreviewImage(image)}
                   alt="Preview"
                   className="w-full h-full object-cover"
                   onError={(e) =>
                     (e.currentTarget.src =
-                      "https://via.placeholder.com/150?text=Invalid+Link")
+                      "https://placehold.co/400x300?text=Invalid+URL")
                   }
                 />
               </div>
@@ -139,7 +124,7 @@ export const AddFoodModal = ({
         </div>
 
         <button
-          onClick={handleSubmit}
+          onClick={() => onSave(name, price, targetCat.id, description, image)}
           disabled={loading || !name || !price || !image}
           className="w-full bg-red-500 text-white rounded-xl py-4 mt-8 font-bold hover:bg-red-600 transition disabled:opacity-50"
         >

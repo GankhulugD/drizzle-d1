@@ -132,7 +132,7 @@ export const FoodMenuContent = () => {
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
               <button
                 onClick={() => setTargetCat(cat)}
-                className="border-2 border-dashed border-red-200 rounded-2xl flex flex-col items-center justify-center p-6 hover:bg-red-50 transition min-h-[220px]"
+                className="border-2 border-dashed border-red-200 rounded-2xl flex flex-col items-center justify-center p-6 hover:bg-red-50 transition min-h-55"
               >
                 <div className="w-12 h-12 rounded-full bg-red-500 flex items-center justify-center mb-2 shadow-lg">
                   <Plus className="text-white" />
