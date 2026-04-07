@@ -1,70 +1,67 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { jwtVerify } from "jose";
 
-const SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET ?? "xK9#mP2$nQ8@vL5&wR3jH7!cF4*bN6^qT1",
-);
-
-async function verifyToken(token: string): Promise<boolean> {
-  try {
-    await jwtVerify(token, SECRET);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-export async function middleware(request: NextRequest) {
-  const token = request.cookies.get("token")?.value;
+export function middleware(request: NextRequest) {
+  // Күүкиний нэр заавал SignInForm-той ижил байх ёстой: "auth-token"
+  const token = request.cookies.get("auth-token")?.value;
   const { pathname } = request.nextUrl;
 
-  // Root
+  // 1. Root (/) хаяг дээрх зохицуулалт
   if (pathname === "/") {
-    if (!token)
+    if (!token) {
       return NextResponse.redirect(new URL("/auth/login", request.url));
+    }
     return NextResponse.redirect(new URL("/home", request.url));
   }
 
-  // Auth API routes — нэвтрэх шаардлагагүй, шууд дамжуулна
-  if (pathname.startsWith("/api/auth/")) {
+  // 2. Auth API болон Auth Pages (/auth/login, /auth/sign-up)
+  // Нэвтэрсэн хэрэглэгч дахин login руу орох гэвэл home руу буцаана
+  if (pathname.startsWith("/auth")) {
+    if (token) {
+      return NextResponse.redirect(new URL("/home", request.url));
+    }
     return NextResponse.next();
   }
 
-  // Бусад API routes — token шалгана
-  if (pathname.startsWith("/api/")) {
+  // 3. Бусад API routes хамгаалалт (Auth-аас бусад)
+  if (pathname.startsWith("/api")) {
+    // Нэвтрэх API-г алгасна
+    if (pathname.startsWith("/api/auth")) {
+      return NextResponse.next();
+    }
+    // Бусад API дээр токен байхгүй бол 401 алдаа буцаана
     if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Нэвтрэх эрхгүй байна (Unauthorized)" },
+        { status: 401 },
+      );
     }
-    const valid = await verifyToken(token);
-    if (!valid) {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
-    }
-    const requestHeaders = new Headers(request.headers);
-    requestHeaders.set("Authorization", `Bearer ${token}`);
-    return NextResponse.next({ request: { headers: requestHeaders } });
+    return NextResponse.next();
   }
 
-  // /home — token шалгана
-  if (pathname.startsWith("/home")) {
-    if (!token)
-      return NextResponse.redirect(new URL("/auth/login", request.url));
-    const valid = await verifyToken(token);
-    if (!valid) {
-      const res = NextResponse.redirect(new URL("/auth/login", request.url));
-      res.cookies.delete("token");
-      return res;
-    }
-  }
+  // 4. Хамгаалалттай хуудсууд (/home, /admin)
+  const protectedPaths = ["/home", "/admin"];
+  const isProtected = protectedPaths.some((path) => pathname.startsWith(path));
 
-  // /auth — token байвал home руу
-  if (token && pathname.startsWith("/auth")) {
-    return NextResponse.redirect(new URL("/home", request.url));
+  if (isProtected) {
+    if (!token) {
+      // Токен байхгүй бол login руу, ирсэн замыг нь 'next' query-гээр дамжуулж болно
+      const loginUrl = new URL("/auth/login", request.url);
+      return NextResponse.redirect(loginUrl);
+    }
+    return NextResponse.next();
   }
 
   return NextResponse.next();
 }
 
+// Эдгээр замууд дээр middleware ажиллана
 export const config = {
-  matcher: ["/", "/home/:path*", "/auth/:path*", "/api/:path*"],
+  matcher: [
+    "/",
+    "/home/:path*",
+    "/admin/:path*",
+    "/auth/:path*",
+    "/api/:path*",
+  ],
 };

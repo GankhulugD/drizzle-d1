@@ -8,6 +8,7 @@ import { FoodCard } from "./FoodCard";
 import { AddCategoryModal } from "./modals/AddCategoryModal";
 import { AddFoodModal } from "./modals/AddFoodModal";
 import { EditFoodModal } from "./modals/EditFoodModal";
+import { UserHeader } from "./UserHeader";
 
 export const FoodMenuContent = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -26,8 +27,8 @@ export const FoodMenuContent = () => {
     setFetching(true);
     try {
       const [catRes, foodRes] = await Promise.all([
-        fetch("/api/categories"),
-        fetch("/api/foods"),
+        fetch("/api/categories", { credentials: "include" }),
+        fetch("/api/foods", { credentials: "include" }),
       ]);
       const cats = await catRes.json();
       const fds = await foodRes.json();
@@ -55,6 +56,7 @@ export const FoodMenuContent = () => {
     try {
       await fetch("/api/foods", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name,
@@ -83,6 +85,7 @@ export const FoodMenuContent = () => {
     try {
       await fetch(`/api/foods/${id}`, {
         method: "PATCH",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name,
@@ -101,7 +104,10 @@ export const FoodMenuContent = () => {
 
   const handleDeleteFood = async (id: number) => {
     if (!confirm("Устгахдаа итгэлтэй байна уу?")) return;
-    await fetch(`/api/foods/${id}`, { method: "DELETE" });
+    await fetch(`/api/foods/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
     setEditFood(null);
     await fetchAll();
   };
@@ -113,6 +119,8 @@ export const FoodMenuContent = () => {
 
   return (
     <div className="p-6 min-h-screen bg-gray-50">
+      <UserHeader />
+
       <CategoryFilterBar
         categories={categories}
         foods={foods}
@@ -179,6 +187,7 @@ export const FoodMenuContent = () => {
           onSave={async (name) => {
             await fetch("/api/categories", {
               method: "POST",
+              credentials: "include",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ name }),
             });

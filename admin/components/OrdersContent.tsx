@@ -43,7 +43,7 @@ export const OrdersContent = () => {
   const fetchOrders = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/orders");
+      const res = await fetch("/api/orders", { credentials: "include" });
       const data = await res.json();
       setOrders(Array.isArray(data.orders) ? data.orders : []);
       setError(null);
@@ -81,6 +81,7 @@ export const OrdersContent = () => {
     try {
       const res = await fetch("/api/orders", {
         method: "PATCH",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ orderId, status: newStatus }),
       });
@@ -108,12 +109,12 @@ export const OrdersContent = () => {
       if (url.includes("/image/") || url.includes("/th/")) {
         return url;
       }
-      
+
       if (url.match(/ibb\.co\/\w+$/)) {
         return url.replace("ibb.co/", "ibb.co/image/");
       }
     }
-    
+
     return url;
   };
 

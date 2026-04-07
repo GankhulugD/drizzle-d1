@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie"; // npm install js-cookie заавал хийсэн байх
 
 export const SignInForm = () => {
+  const router = useRouter();
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -12,21 +15,32 @@ export const SignInForm = () => {
   };
 
   const onSubmit = async () => {
+    if (loading) return;
     setLoading(true);
     setError(null);
+
     try {
       const response = await fetch("/api/auth/sign-in", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
+
       const data = await response.json();
+
       if (response.ok) {
-        window.location.href = "/home";
+        // 1. Токен болон Хэрэглэгчийн имэйлийг күүкид хадгалах
+        // Expires: 7 гэвэл 7 хоногийн дараа автоматаар гарна
+        Cookies.set("auth-token", data.token, { expires: 7 });
+        Cookies.set("user-email", form.email, { expires: 7 });
+
+        // 2. Амжилттай болвол шилжих
+        router.push("/home");
+        router.refresh();
       } else {
         setError(data.error || "Имэйл эсвэл нууц үг буруу байна!");
       }
-    } catch {
+    } catch (err) {
       setError("Сервертэй холбогдоход алдаа гарлаа.");
     } finally {
       setLoading(false);
@@ -34,49 +48,56 @@ export const SignInForm = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">
-            Login to your account
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 w-full max-w-md border border-gray-100">
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
+            Тавтай морил
           </h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Enter your email below to login to your account
+          <p className="text-sm text-gray-500 mt-2">
+            Системд нэвтрэхийн тулд имэйл хаягаа оруулна уу
           </p>
         </div>
 
         {error && (
-          <div className="text-sm text-red-600 bg-red-50 border border-red-200 px-4 py-3 rounded-xl mb-4">
+          <div className="text-sm text-red-600 bg-red-50 border border-red-100 px-4 py-3 rounded-2xl mb-6 flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-red-600 shrink-0" />
             {error}
           </div>
         )}
 
-        <div className="space-y-4">
+        <form
+          className="space-y-5"
+          onSubmit={(e) => {
+            e.preventDefault();
+            onSubmit();
+          }}
+        >
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              Email
+            <label className="block text-sm font-semibold text-gray-700 mb-2 ml-1">
+              Имэйл хаяг
             </label>
             <input
               type="email"
               name="email"
-              placeholder="m@example.com"
+              placeholder="name@example.com"
               required
               value={form.email}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition"
+              className="w-full border border-gray-200 rounded-2xl px-4 py-3 text-sm outline-none focus:ring-4 focus:ring-gray-100 focus:border-gray-400 transition-all placeholder:text-gray-400"
             />
           </div>
 
           <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="text-sm font-medium text-gray-700">
-                Password
+            <div className="flex items-center justify-between mb-2 ml-1">
+              <label className="text-sm font-semibold text-gray-700">
+                Нууц үг
               </label>
               <a
                 href="#"
-                className="text-sm text-gray-500 hover:text-gray-700 hover:underline transition"
+                className="text-xs font-medium text-gray-400 hover:text-gray-900 transition"
               >
-                Forgot your password?
+                Нууц үг мартсан уу?
               </a>
             </div>
             <input
@@ -85,30 +106,35 @@ export const SignInForm = () => {
               required
               value={form.password}
               onChange={handleChange}
-              onKeyDown={(e) => e.key === "Enter" && onSubmit()}
-              className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition"
+              className="w-full border border-gray-200 rounded-2xl px-4 py-3 text-sm outline-none focus:ring-4 focus:ring-gray-100 focus:border-gray-400 transition-all"
             />
           </div>
 
           <button
-            type="button"
-            onClick={onSubmit}
+            type="submit"
             disabled={loading || !form.email || !form.password}
-            className="w-full bg-black text-white rounded-xl py-3 font-semibold text-sm hover:bg-gray-800 transition disabled:opacity-50 mt-2"
+            className="w-full bg-black text-white rounded-2xl py-3.5 font-bold text-sm hover:bg-zinc-800 transition-all active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none mt-4 shadow-xl shadow-black/5"
           >
-            {loading ? "Нэвтэрч байна..." : "Login"}
+            {loading ? (
+              <div className="flex items-center justify-center gap-2">
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Түр хүлээнэ үү...
+              </div>
+            ) : (
+              "Нэвтрэх"
+            )}
           </button>
 
-          <p className="text-center text-sm text-gray-500 pt-2">
-            Don&apos;t have an account?{" "}
+          <p className="text-center text-sm text-gray-500 pt-4">
+            Бүртгэлгүй юу?{" "}
             <a
-              href="./sign-up"
-              className="font-semibold text-gray-900 hover:underline"
+              href="/auth/sign-up"
+              className="font-bold text-gray-900 hover:underline underline-offset-4"
             >
-              Sign up
+              Бүртгүүлэх
             </a>
           </p>
-        </div>
+        </form>
       </div>
     </div>
   );

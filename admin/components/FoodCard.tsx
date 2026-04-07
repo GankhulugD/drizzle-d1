@@ -10,11 +10,8 @@ type Props = {
 const getDisplayImage = (url: string | null | undefined): string => {
   if (!url) return "https://placehold.co/400x300?text=No+Image";
 
-  // Аль хэдийнэ i.ibb.co байвал шууд буцаана
   if (url.includes("i.ibb.co")) return url;
 
-  // https://ibb.co/bgcrnsz0 → задлаад i.ibb.co болгохыг оролдоно
-  // Гэхдээ энэ format шууд ажиллахгүй тул placeholder харуулна
   if (url.includes("ibb.co") && !url.includes("i.ibb.co")) {
     return "https://placehold.co/400x300?text=Use+Direct+Link";
   }

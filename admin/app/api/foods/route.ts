@@ -1,43 +1,65 @@
-const API = "http://localhost:8787";
+import { verifyToken, getTokenFromRequest } from "@/lib/auth";
+
+const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8787";
+
+export async function GET(req: Request) {
+  try {
+    const token = verifyToken(req);
+    if (!token) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const tokenStr = getTokenFromRequest(req);
+    const res = await fetch(`${BACKEND_URL}/foods`, {
+      headers: {
+        "Content-Type": "application/json",
+        ...(tokenStr && { Authorization: `Bearer ${tokenStr}` }),
+      },
+    });
+    if (!res.ok) {
+      return Response.json(
+        { error: "Failed to fetch foods" },
+        { status: res.status },
+      );
+    }
+
+    const data = await res.json();
+    return Response.json(data);
+  } catch (e: unknown) {
+    console.error("Foods GET error:", String(e));
+    return Response.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
 
 export async function POST(req: Request) {
   try {
+    const token = verifyToken(req);
+    if (!token) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await req.json();
-    const res = await fetch(`${API}/auth/sign-in`, {
+    const tokenStr = getTokenFromRequest(req);
+    const res = await fetch(`${BACKEND_URL}/foods`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(tokenStr && { Authorization: `Bearer ${tokenStr}` }),
+      },
       body: JSON.stringify(body),
     });
 
-    const data = await res.json();
-
     if (!res.ok) {
-      return Response.json(data, { status: res.status });
+      return Response.json(
+        { error: "Failed to create food" },
+        { status: res.status },
+      );
     }
 
-    // Server-аас token авч Next.js талд httpOnly cookie тавина
-    const response = Response.json({
-      message: data.message,
-      user: data.user,
-    });
-
-    const headers = new Headers(response.headers);
-    headers.set(
-      "Set-Cookie",
-      `token=${data.token}; HttpOnly; Path=/; Max-Age=${60 * 60 * 24}; SameSite=Strict`,
-    );
-
-    return new Response(
-      JSON.stringify({ message: data.message, user: data.user }),
-      {
-        status: 200,
-        headers,
-      },
-    );
-  } catch (e) {
-    return Response.json(
-      { error: "Серверт холбогдоход алдаа гарлаа" },
-      { status: 500 },
-    );
+    const data = await res.json();
+    return Response.json(data);
+  } catch (e: unknown) {
+    console.error("Foods POST error:", String(e));
+    return Response.json({ error: "Internal server error" }, { status: 500 });
   }
 }
