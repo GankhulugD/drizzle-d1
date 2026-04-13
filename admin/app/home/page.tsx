@@ -7,7 +7,7 @@ export default async function HomePage() {
   const token = cookieStore.get("token");
 
   if (!token) {
-    redirect("/auth/sign-in");
+    redirect("/auth/login");
   }
 
   return <AdminLayout />;

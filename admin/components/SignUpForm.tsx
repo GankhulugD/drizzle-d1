@@ -52,7 +52,7 @@ export const SignUpForm = () => {
         Cookies.set("user-email", form.email, { expires: 7 });
 
         alert("Бүртгэл амжилттай! Одоо нэвтэрнэ үү.");
-        router.push("/auth/sign-in");
+        router.push("/auth/login");
       } else {
         setError(data.error || "Бүртгэл хийхэд алдаа гарлаа.");
       }
