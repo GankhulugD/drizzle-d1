@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     const body = await req.json();
 
     // Forward auth request to backend
-    const res = await fetch(`${BACKEND_URL}/auth/sign-in`, {
+    const res = await fetch(`${BACKEND_URL}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
