@@ -31,8 +31,8 @@ export const food = sqliteTable("Food", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
   price: text("price").notNull(),
-  description: text("description"), // Ingredients энд хадгалагдана
-  image: text("image"), // Imgbb-ийн URL линк хадгалагдана
+  description: text("description"),
+  image: text("image"),
   foodCategoryId: integer("foodCategoryId")
     .notNull()
     .references(() => foodCategory.id),
@@ -43,8 +43,8 @@ export const food = sqliteTable("Food", {
 export const foodOrder = sqliteTable("FoodOrder", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   totalPrice: text("totalPrice").notNull(),
-  status: text("status").notNull().default("Pending"), // Pending, Delivered, Cancelled
-  deliveryAddress: text("deliveryAddress"), // Хүргэлтийн хаяг (Шинээр нэмсэн)
+  status: text("status").notNull().default("Pending"),
+  deliveryAddress: text("deliveryAddress"),
   userId: integer("userId").references(() => users.id),
   createdAt: text("createdAt").default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text("updatedAt").default(sql`CURRENT_TIMESTAMP`),

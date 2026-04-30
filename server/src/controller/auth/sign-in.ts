@@ -30,7 +30,7 @@ export const signIn = async (c: AppContext) => {
 
   c.header(
     "Set-Cookie",
-    `token=${token}; HttpOnly; Path=/; Max-Age=${60 * 60 * 24}; SameSite=Strict`,
+    `token=${token}; HttpOnly; Path=/; Max-Age=${60 * 60 * 24}; SameSite=None; Secure`,
   );
 
   return c.json({

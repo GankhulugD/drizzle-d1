@@ -18,16 +18,16 @@ app.use(
     origin: [
       "https://my-app.gankhulug12345.workers.dev",
       "http://localhost:3000",
+      "http://localhost:3001",
     ],
     allowHeaders: ["Content-Type", "Authorization"],
     allowMethods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    credentials: true,
   }),
 );
 
-// Auth routes — middleware хэрэггүй
 authRouter(app as any);
 
-// Protected routes — middleware дотроо байна
 foodRouter(app as any);
 categoryRouter(app as any);
 orderRouter(app as any);

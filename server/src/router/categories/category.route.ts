@@ -6,7 +6,7 @@ import { patchCategory } from "../../controller/categories/patch-categories";
 import { deleteCategory } from "../../controller/categories/delete-categories";
 
 export const categoryRouter = (app: App) => {
-  app.get("/categories", authMiddleware, getCategories);
+  app.get("/categories", getCategories);
   app.post("/categories", authMiddleware, createCategory);
   app.patch("/categories/:id", authMiddleware, patchCategory);
   app.delete("/categories/:id", authMiddleware, deleteCategory);

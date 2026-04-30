@@ -6,7 +6,7 @@ import { patchFood } from "../../controller/foods/patch-food";
 import { deleteFood } from "../../controller/foods/delete-food";
 
 export const foodRouter = (app: App) => {
-  app.get("/foods", authMiddleware, getFoods);
+  app.get("/foods", getFoods);
   app.post("/foods", authMiddleware, createFood);
   app.patch("/foods/:id", authMiddleware, patchFood);
   app.delete("/foods/:id", authMiddleware, deleteFood);
